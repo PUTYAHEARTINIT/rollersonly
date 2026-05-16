@@ -68,7 +68,7 @@ export default function Home() {
       <div className="hero">
         <div className="hero-bg-text">ROLLERS</div>
         <div className="hero-line" />
-        <Image src="/bird-white-red.jpg" alt="Elite roller pigeon" width={900} height={900} className="hero-bird-main" priority />
+        <Image src="/hero-bird.jpg" alt="Elite roller pigeon" width={900} height={900} className="hero-bird-main" priority />
         <Image src="/bird-red.jpg" alt="Roller pigeon" width={600} height={600} className="hero-bird-ghost" priority />
         <div className="hero-content">
           <p className="hero-eyebrow">The world&apos;s premier roller pigeon marketplace</p>
