@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Countdown from "@/components/Countdown";
 
 const tickerItems = [
@@ -15,66 +16,33 @@ const tickerItems = [
 ];
 
 const auctionCards = [
-  {
-    badge: "● Live",
-    badgeClass: "badge-live",
-    img: "/bird-white-red.jpg",
-    name: "Blue Bar Champion Cock",
-    breeder: "Anderson Loft · DeSoto, Texas, USA",
-    bidLabel: "Current bid",
-    bid: "$1,240",
-    timeLabel: "Ends in",
-    seconds: 1122,
-    tags: ["Verified Pedigree", "DNA Cert"],
-  },
-  {
-    badge: "● Live",
-    badgeClass: "badge-live",
-    img: "/bird-red.jpg",
-    name: "Red Self Breeding Hen",
-    breeder: "Martinez Champion Loft · California, USA",
-    bidLabel: "Current bid",
-    bid: "$780",
-    timeLabel: "Ends in",
-    seconds: 2655,
-    tags: ["World Cup Line", "Health Cert"],
-  },
-  {
-    badge: "Starts in 18 min",
-    badgeClass: "badge-upcoming",
-    img: "/bird-lavender.jpg",
-    name: "White Badge Breeding Pair",
-    breeder: "Royal Birmingham Loft · Birmingham, UK",
-    bidLabel: "Opening bid",
-    bid: "$600",
-    timeLabel: "Starts in",
-    seconds: 1075,
-    tags: ["Breeding Pair", "NBRC Champion"],
-  },
+  { id: 1, badge: "● Live", badgeClass: "badge-live", img: "/bird-white-red.jpg", name: "Blue Bar Champion Cock", breeder: "Anderson Loft · DeSoto, Texas, USA", bidLabel: "Current bid", bid: "$1,240", timeLabel: "Ends in", seconds: 1122, tags: ["Verified Pedigree", "DNA Cert"] },
+  { id: 2, badge: "● Live", badgeClass: "badge-live", img: "/bird-red.jpg", name: "Red Self Breeding Hen", breeder: "Martinez Champion Loft · California, USA", bidLabel: "Current bid", bid: "$780", timeLabel: "Ends in", seconds: 2655, tags: ["World Cup Line", "Health Cert"] },
+  { id: 3, badge: "Starts in 18 min", badgeClass: "badge-upcoming", img: "/bird-lavender.jpg", name: "White Badge Breeding Pair", breeder: "Royal Birmingham Loft · Birmingham, UK", bidLabel: "Opening bid", bid: "$600", timeLabel: "Starts in", seconds: 1075, tags: ["Breeding Pair", "NBRC Champion"] },
 ];
 
 const featuredBirds = [
-  { img: "/bird-white-red.jpg", name: "Blue Bar Champion", meta: "Anderson Loft · Texas · Male · 2024", price: "Opening bid $400" },
-  { img: "/bird-lavender.jpg", name: "Lavender Hen — World Cup", meta: "Sterling Loft · Netherlands · Female · 2023", price: "Opening bid $650" },
-  { img: "/bird-red.jpg", name: "Red Self Breeding Cock", meta: "Martinez Loft · California · Male · 2024", price: "Opening bid $350" },
-  { img: "/bird-white-red2.jpg", name: "White Badge Roller Hen", meta: "Royal Birmingham Loft · UK · Female · 2024", price: "Opening bid $500" },
-  { img: "/bird-black-centertail.jpg", name: "Black Centertail Young Cock", meta: "Khan Loft · Texas · Male · 2025", price: "Opening bid $280" },
-  { img: "/bird-red2.jpg", name: "Recessive Red Breeding Hen", meta: "Desert Loft · Arizona · Female · 2024", price: "Opening bid $420" },
+  { id: 1, img: "/bird-white-red.jpg", name: "Blue Bar Champion", meta: "Anderson Loft · Texas · Male · 2024", price: "Opening bid $400" },
+  { id: 3, img: "/bird-lavender.jpg", name: "Lavender Hen — World Cup", meta: "Sterling Loft · Netherlands · Female · 2023", price: "Opening bid $650" },
+  { id: 2, img: "/bird-red.jpg", name: "Red Self Breeding Cock", meta: "Martinez Loft · California · Male · 2024", price: "Opening bid $350" },
+  { id: 5, img: "/bird-white-red2.jpg", name: "White Badge Roller Hen", meta: "Royal Birmingham Loft · UK · Female · 2024", price: "Opening bid $500" },
+  { id: 4, img: "/bird-black-centertail.jpg", name: "Black Centertail Young Cock", meta: "Khan Loft · Texas · Male · 2025", price: "Opening bid $280" },
+  { id: 6, img: "/bird-red2.jpg", name: "Recessive Red Breeding Hen", meta: "Desert Loft · Arizona · Female · 2024", price: "Opening bid $420" },
 ];
 
 const breeders = [
-  { initial: "A", name: "Anderson Loft", location: "DeSoto, Texas, USA", sold: 142, championships: 18 },
-  { initial: "M", name: "Martinez Champion Loft", location: "Los Angeles, California, USA", sold: 98, championships: 12 },
-  { initial: "R", name: "Royal Birmingham Loft", location: "Birmingham, England, UK", sold: 211, championships: 31 },
-  { initial: "S", name: "Sterling Dutch Loft", location: "Amsterdam, Netherlands", sold: 76, championships: 9 },
+  { slug: "anderson", initial: "A", name: "Anderson Loft", location: "DeSoto, Texas, USA", sold: 142, championships: 18 },
+  { slug: "martinez", initial: "M", name: "Martinez Champion Loft", location: "Los Angeles, California, USA", sold: 98, championships: 12 },
+  { slug: "royal-birmingham", initial: "R", name: "Royal Birmingham Loft", location: "Birmingham, England, UK", sold: 211, championships: 31 },
+  { slug: "sterling", initial: "S", name: "Sterling Dutch Loft", location: "Amsterdam, Netherlands", sold: 76, championships: 9 },
 ];
 
 const features = [
-  { num: "01", title: "Live Auction Rooms", desc: "Real-time bidding with photo of the bird. Countdown clock, live chat, and escrow auto-triggered on hammer. Breeder submits video same day." },
-  { num: "02", title: "Verified Pedigree Vault", desc: "Every bird registered with a unique platform ID. Bloodlines locked and verified — tamper-proof lineage chains going back generations." },
-  { num: "03", title: "AI Breeding Matchmaker", desc: "Enter your birds' pedigree data and our AI analyzes bloodlines, flags common ancestors, and recommends optimal breeding pairs from across the platform." },
-  { num: "04", title: "Health & DNA Certification", desc: "Partner veterinary network. DNA parentage confirmation. Certified birds carry visible trust badges on every listing." },
-  { num: "05", title: "Escrow-Protected Payments", desc: "Buyer funds held until arrival confirmed. First platform to offer true escrow protection for roller pigeon transactions globally." },
+  { num: "01", title: "Live Auction Rooms", desc: "Real-time bidding with photo of the bird. Countdown clock, live chat, and escrow auto-triggered on hammer. Breeder submits video same day.", href: "/auctions" },
+  { num: "02", title: "Verified Pedigree Vault", desc: "Every bird registered with a unique platform ID. Bloodlines locked and verified — tamper-proof lineage chains going back generations.", href: "/pedigree" },
+  { num: "03", title: "AI Breeding Matchmaker", desc: "Enter your birds' pedigree data and our AI analyzes bloodlines, flags common ancestors, and recommends optimal breeding pairs from across the platform.", href: "/signup" },
+  { num: "04", title: "Health & DNA Certification", desc: "Partner veterinary network. DNA parentage confirmation. Certified birds carry visible trust badges on every listing.", href: "/how-it-works" },
+  { num: "05", title: "Escrow-Protected Payments", desc: "Buyer funds held until arrival confirmed. First platform to offer true escrow protection for roller pigeon transactions globally.", href: "/how-it-works" },
 ];
 
 export default function Home() {
@@ -82,17 +50,17 @@ export default function Home() {
     <>
       {/* NAV */}
       <nav>
-        <a href="#" className="nav-logo">Rollers<span>Only</span></a>
+        <Link href="/" className="nav-logo">Rollers<span>Only</span></Link>
         <ul className="nav-links">
-          <li><a href="#">Live Auctions</a></li>
-          <li><a href="#">Browse Birds</a></li>
-          <li><a href="#">Top Breeders</a></li>
-          <li><a href="#">Pedigrees</a></li>
-          <li><a href="#">Leaderboards</a></li>
+          <li><Link href="/auctions">Live Auctions</Link></li>
+          <li><Link href="/browse">Browse Birds</Link></li>
+          <li><Link href="/breeders">Top Breeders</Link></li>
+          <li><Link href="/pedigree">Pedigrees</Link></li>
+          <li><Link href="/leaderboards">Leaderboards</Link></li>
         </ul>
         <div className="nav-cta">
-          <a href="#" className="btn-ghost">Sign in</a>
-          <a href="#" className="btn-gold">Join Now</a>
+          <Link href="/signin" className="btn-ghost">Sign in</Link>
+          <Link href="/signup" className="btn-gold">Join Now</Link>
         </div>
       </nav>
 
@@ -100,22 +68,8 @@ export default function Home() {
       <div className="hero">
         <div className="hero-bg-text">ROLLERS</div>
         <div className="hero-line" />
-        <Image
-          src="/bird-white-red.jpg"
-          alt="Elite roller pigeon"
-          width={900}
-          height={900}
-          className="hero-bird-main"
-          priority
-        />
-        <Image
-          src="/bird-red.jpg"
-          alt="Roller pigeon"
-          width={600}
-          height={600}
-          className="hero-bird-ghost"
-          priority
-        />
+        <Image src="/bird-white-red.jpg" alt="Elite roller pigeon" width={900} height={900} className="hero-bird-main" priority />
+        <Image src="/bird-red.jpg" alt="Roller pigeon" width={600} height={600} className="hero-bird-ghost" priority />
         <div className="hero-content">
           <p className="hero-eyebrow">The world&apos;s premier roller pigeon marketplace</p>
           <h1 className="hero-title">
@@ -126,12 +80,14 @@ export default function Home() {
             The platform the global roller pigeon community has always deserved.
           </p>
           <div className="hero-actions">
-            <a href="#" className="btn-gold-lg">Enter the Loft</a>
-            <a href="#" className="btn-ghost-lg">View Live Auctions</a>
+            <Link href="/signup" className="btn-gold-lg">Enter the Loft</Link>
+            <Link href="/auctions" className="btn-ghost-lg">View Live Auctions</Link>
           </div>
         </div>
         <div className="hero-badge">
-          <div className="live-dot">3 Live Auctions Now</div>
+          <Link href="/auctions" style={{ textDecoration: "none" }}>
+            <div className="live-dot">3 Live Auctions Now</div>
+          </Link>
         </div>
         <div className="scroll-hint">
           <span>Scroll</span>
@@ -143,9 +99,7 @@ export default function Home() {
       <div className="ticker-bar">
         <div className="ticker-inner">
           {[...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className={item === "◆" ? "ticker-item ticker-sep" : "ticker-item"}>
-              {item}
-            </span>
+            <span key={i} className={item === "◆" ? "ticker-item ticker-sep" : "ticker-item"}>{item}</span>
           ))}
         </div>
       </div>
@@ -157,41 +111,35 @@ export default function Home() {
             <p className="section-eyebrow">Active Right Now</p>
             <h2 className="section-title">Live Auctions</h2>
           </div>
-          <a href="#" className="btn-ghost">View all auctions →</a>
+          <Link href="/auctions" className="btn-ghost">View all auctions →</Link>
         </div>
         <div className="auctions-grid">
-          {auctionCards.map((card, i) => (
-            <div key={i} className="auction-card">
-              <div className="auction-img-wrap">
-                <div className={`auction-badge ${card.badgeClass}`}>{card.badge}</div>
-                <Image
-                  src={card.img}
-                  alt={card.name}
-                  fill
-                  className="auction-img"
-                  style={{ objectFit: "contain", objectPosition: "center bottom" }}
-                />
-              </div>
-              <div className="auction-body">
-                <div className="auction-name">{card.name}</div>
-                <div className="auction-breeder">{card.breeder}</div>
-                <div className="auction-meta">
-                  <div>
-                    <div className="auction-bid-label">{card.bidLabel}</div>
-                    <div className="auction-bid">{card.bid}</div>
+          {auctionCards.map((card) => (
+            <Link key={card.id} href={`/birds/${card.id}`} style={{ textDecoration: "none" }}>
+              <div className="auction-card">
+                <div className="auction-img-wrap">
+                  <div className={`auction-badge ${card.badgeClass}`}>{card.badge}</div>
+                  <Image src={card.img} alt={card.name} fill className="auction-img" style={{ objectFit: "contain", objectPosition: "center bottom" }} />
+                </div>
+                <div className="auction-body">
+                  <div className="auction-name">{card.name}</div>
+                  <div className="auction-breeder">{card.breeder}</div>
+                  <div className="auction-meta">
+                    <div>
+                      <div className="auction-bid-label">{card.bidLabel}</div>
+                      <div className="auction-bid">{card.bid}</div>
+                    </div>
+                    <div className="auction-timer">
+                      <div className="timer-label">{card.timeLabel}</div>
+                      <Countdown seconds={card.seconds} />
+                    </div>
                   </div>
-                  <div className="auction-timer">
-                    <div className="timer-label">{card.timeLabel}</div>
-                    <Countdown seconds={card.seconds} />
+                  <div className="auction-tags">
+                    {card.tags.map((tag) => <span key={tag} className="tag">{tag}</span>)}
                   </div>
                 </div>
-                <div className="auction-tags">
-                  {card.tags.map((tag) => (
-                    <span key={tag} className="tag">{tag}</span>
-                  ))}
-                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -223,22 +171,18 @@ export default function Home() {
           <h2 className="section-title">Featured Birds</h2>
         </div>
         <div className="bird-parade">
-          {featuredBirds.map((bird, i) => (
-            <div key={i} className="bird-card">
-              <Image
-                src={bird.img}
-                alt={bird.name}
-                width={280}
-                height={400}
-                className="bird-card-img"
-              />
-              <div className="bird-card-info">
-                <div className="bird-card-name">{bird.name}</div>
-                <div className="bird-card-meta">{bird.meta}</div>
-                <div className="bird-card-price">{bird.price}</div>
-                <button className="bid-btn">Place Bid</button>
+          {featuredBirds.map((bird) => (
+            <Link key={bird.id} href={`/birds/${bird.id}`} style={{ textDecoration: "none" }}>
+              <div className="bird-card">
+                <Image src={bird.img} alt={bird.name} width={280} height={400} className="bird-card-img" />
+                <div className="bird-card-info">
+                  <div className="bird-card-name">{bird.name}</div>
+                  <div className="bird-card-meta">{bird.meta}</div>
+                  <div className="bird-card-price">{bird.price}</div>
+                  <div className="bid-btn">Place Bid</div>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -250,26 +194,28 @@ export default function Home() {
             <p className="section-eyebrow">Verified Elite Lofts</p>
             <h2 className="section-title">Top Breeders</h2>
           </div>
-          <a href="#" className="btn-ghost">View all breeders →</a>
+          <Link href="/breeders" className="btn-ghost">View all breeders →</Link>
         </div>
         <div className="breeders-grid">
-          {breeders.map((b, i) => (
-            <div key={i} className="breeder-card">
-              <div className="breeder-avatar">{b.initial}</div>
-              <div className="breeder-name">{b.name}</div>
-              <div className="breeder-location">{b.location}</div>
-              <div className="breeder-stats">
-                <div>
-                  <div className="b-stat-val">{b.sold}</div>
-                  <div className="b-stat-label">Birds sold</div>
+          {breeders.map((b) => (
+            <Link key={b.slug} href={`/loft/${b.slug}`} style={{ textDecoration: "none" }}>
+              <div className="breeder-card">
+                <div className="breeder-avatar">{b.initial}</div>
+                <div className="breeder-name">{b.name}</div>
+                <div className="breeder-location">{b.location}</div>
+                <div className="breeder-stats">
+                  <div>
+                    <div className="b-stat-val">{b.sold}</div>
+                    <div className="b-stat-label">Birds sold</div>
+                  </div>
+                  <div>
+                    <div className="b-stat-val">{b.championships}</div>
+                    <div className="b-stat-label">Championships</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="b-stat-val">{b.championships}</div>
-                  <div className="b-stat-label">Championships</div>
-                </div>
+                <div className="elite-badge">Elite Loft</div>
               </div>
-              <div className="elite-badge">Elite Loft</div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -284,25 +230,21 @@ export default function Home() {
           </h2>
           <div className="feature-list">
             {features.map((f) => (
-              <div key={f.num} className="feature-item">
-                <span className="feature-num">{f.num}</span>
-                <div>
-                  <div className="feature-title">{f.title}</div>
-                  <div className="feature-desc">{f.desc}</div>
+              <Link key={f.num} href={f.href} style={{ textDecoration: "none" }}>
+                <div className="feature-item">
+                  <span className="feature-num">{f.num}</span>
+                  <div>
+                    <div className="feature-title">{f.title}</div>
+                    <div className="feature-desc">{f.desc}</div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
         <div className="features-right">
           <div className="feature-ring" />
-          <Image
-            src="/bird-black-centertail.jpg"
-            alt="Elite roller pigeon"
-            width={500}
-            height={600}
-            className="feature-bird"
-          />
+          <Image src="/bird-black-centertail.jpg" alt="Elite roller pigeon" width={500} height={600} className="feature-bird" />
         </div>
       </div>
 
@@ -326,9 +268,7 @@ export default function Home() {
             <div className="pricing-feature">Escrow buyer protection</div>
             <div className="pricing-feature">Competition leaderboards</div>
             <div className="pricing-action">
-              <a href="#" className="btn-ghost" style={{ display: "block", textAlign: "center", padding: "12px" }}>
-                Get started
-              </a>
+              <Link href="/signup" className="btn-ghost" style={{ display: "block", textAlign: "center", padding: "12px" }}>Get started</Link>
             </div>
           </div>
           <div className="pricing-card featured">
@@ -342,9 +282,7 @@ export default function Home() {
             <div className="pricing-feature">AI breeding matchmaker</div>
             <div className="pricing-feature">Fly video uploads</div>
             <div className="pricing-action">
-              <a href="#" className="btn-gold" style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: "2px" }}>
-                Join as Breeder
-              </a>
+              <Link href="/signup" className="btn-gold" style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: "2px" }}>Join as Breeder</Link>
             </div>
           </div>
           <div className="pricing-card">
@@ -358,9 +296,7 @@ export default function Home() {
             <div className="pricing-feature">DNA cert display</div>
             <div className="pricing-feature">Full analytics dashboard</div>
             <div className="pricing-action">
-              <a href="#" className="btn-ghost" style={{ display: "block", textAlign: "center", padding: "12px" }}>
-                Apply for Elite
-              </a>
+              <a href="mailto:strangemotelmusic@gmail.com" className="btn-ghost" style={{ display: "block", textAlign: "center", padding: "12px" }}>Apply for Elite</a>
             </div>
           </div>
         </div>
@@ -377,8 +313,8 @@ export default function Home() {
           Join thousands of roller pigeon fanciers who trust RollersOnly for every transaction.
         </p>
         <div className="cta-actions">
-          <a href="#" className="btn-gold-lg">Create Your Loft Profile</a>
-          <a href="#" className="btn-ghost-lg">Browse Live Auctions</a>
+          <Link href="/signup" className="btn-gold-lg">Create Your Loft Profile</Link>
+          <Link href="/auctions" className="btn-ghost-lg">Browse Live Auctions</Link>
         </div>
       </div>
 
@@ -394,31 +330,31 @@ export default function Home() {
           <div>
             <div className="footer-col-title">Platform</div>
             <ul className="footer-links">
-              <li><a href="#">Live Auctions</a></li>
-              <li><a href="#">Browse Birds</a></li>
-              <li><a href="#">Pedigree Vault</a></li>
-              <li><a href="#">Leaderboards</a></li>
-              <li><a href="#">Fly Videos</a></li>
+              <li><Link href="/auctions">Live Auctions</Link></li>
+              <li><Link href="/browse">Browse Birds</Link></li>
+              <li><Link href="/pedigree">Pedigree Vault</Link></li>
+              <li><Link href="/leaderboards">Leaderboards</Link></li>
+              <li><Link href="/magazine">QSDC Magazine</Link></li>
             </ul>
           </div>
           <div>
             <div className="footer-col-title">Community</div>
             <ul className="footer-links">
-              <li><a href="#">Top Breeders</a></li>
-              <li><a href="#">Elite Lofts</a></li>
-              <li><a href="#">Championship Events</a></li>
-              <li><a href="#">AI Matchmaking</a></li>
-              <li><a href="#">About NBRC</a></li>
+              <li><Link href="/breeders">Top Breeders</Link></li>
+              <li><Link href="/breeders">Elite Lofts</Link></li>
+              <li><Link href="/leaderboards">Championship Events</Link></li>
+              <li><Link href="/signup">AI Matchmaking</Link></li>
+              <li><Link href="/how-it-works">About the Sport</Link></li>
             </ul>
           </div>
           <div>
             <div className="footer-col-title">Support</div>
             <ul className="footer-links">
-              <li><a href="#">How it Works</a></li>
-              <li><a href="#">Shipping Guide</a></li>
-              <li><a href="#">Escrow Policy</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Become a Partner</a></li>
+              <li><Link href="/how-it-works">How it Works</Link></li>
+              <li><Link href="/how-it-works">Shipping Guide</Link></li>
+              <li><Link href="/how-it-works">Escrow Policy</Link></li>
+              <li><a href="mailto:strangemotelmusic@gmail.com">Contact Us</a></li>
+              <li><a href="mailto:strangemotelmusic@gmail.com">Become a Partner</a></li>
             </ul>
           </div>
         </div>
