@@ -1,7 +1,7 @@
   git config --global user.name "strangemotelmusic"
   git config --global user.email "strangemotelmusic@gmail.com"
 
-[REMOVED]  GITHUB PERSONAL TOKEN 
+[REMOVED - GitHub Personal Token] 
 
  ---
   The Stack You Already Have
