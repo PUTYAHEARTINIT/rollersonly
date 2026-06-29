@@ -1,31 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 
-const activeBids = [
-  { id: 1, name: "Blue Bar Champion Cock", loft: "Anderson Elite Loft", yourBid: "$1,240", currentBid: "$1,240", status: "winning", ends: "2h 18m", img: "/bird-white-red.jpg" },
-  { id: 5, name: "White Badge Roller Hen", loft: "Royal Birmingham Loft", yourBid: "$600", currentBid: "$650", status: "outbid", ends: "5h 44m", img: "/bird-white-red2.jpg" },
-];
-
-const myListings = [
-  { id: 1, name: "Blue Bar Champion Cock", ring: "AU24-TX-44821", bids: 14, currentBid: "$1,240", status: "live", img: "/bird-white-red.jpg" },
-  { id: 4, name: "Black Centertail Young Cock", ring: "AU25-TX-11203", bids: 0, currentBid: "$420", status: "available", img: "/bird-black-centertail.jpg" },
-];
-
-const recentSales = [
-  { name: "Lavender Cock", buyer: "martinez_ca", amount: "$1,100", date: "May 12, 2025" },
-  { name: "Red Self Hen", buyer: "khanloft_tx", amount: "$780", date: "April 28, 2025" },
-  { name: "White Badge Pair", buyer: "sterling_nl", amount: "$2,400", date: "April 10, 2025" },
-];
-
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [profile, setProfile] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -36,11 +20,14 @@ export default function DashboardPage() {
         .select('*')
         .eq('id', user.id)
         .single()
-        .then(({ data }) => setProfile(data));
+        .then(({ data }) => {
+          setProfile(data);
+          setProfileLoading(false);
+        });
     }
   }, [user, supabase]);
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ color: "var(--muted)", fontFamily: "var(--ff-display)", fontSize: 24, fontWeight: 300 }}>Loading your loft…</div>
@@ -48,7 +35,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!user || !profile) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 20 }}>
         <div style={{ fontFamily: "var(--ff-display)", fontSize: 32, fontWeight: 300, color: "var(--white)" }}>Sign in to access your dashboard</div>
@@ -57,11 +44,12 @@ export default function DashboardPage() {
     );
   }
 
-  // Use profile data instead of hardcoded values
-  const displayName = profile?.full_name?.split(' ')[0] || user.user_metadata?.username || 'User';
-  const loftName = profile?.loft_name || 'Your Loft';
-  const loftLocation = profile?.loft_location || '';
-  const tier = profile?.tier || 'Fancier';
+  // Use REAL profile data
+  const displayName = profile.full_name?.split(' ')[0] || profile.username || 'User';
+  const username = profile.username || 'user';
+  const location = profile.location || 'Location not set';
+  const tier = profile.tier || 'fancier';
+  const bio = profile.bio || 'No bio yet';
 
   return (
     <>
@@ -73,172 +61,100 @@ export default function DashboardPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Your Loft</p>
-              <h1 style={{ fontFamily: "var(--ff-display)", fontSize: 40, fontWeight: 300, color: "var(--white)", marginBottom: 6 }}>Welcome back, {displayName}</h1>
+              <h1 style={{ fontFamily: "var(--ff-display)", fontSize: 40, fontWeight: 300, color: "var(--white)", marginBottom: 6 }}>
+                Welcome back, {displayName}
+              </h1>
               <p style={{ fontSize: 13, color: "var(--muted)" }}>
-                {loftName} {loftLocation && `· ${loftLocation}`} · {tier.charAt(0).toUpperCase() + tier.slice(1)} Member
+                @{username} · {location} · {tier.charAt(0).toUpperCase() + tier.slice(1)} Member
               </p>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <Link href="/pedigree" className="btn-ghost" style={{ fontSize: 11 }}>Pedigree Vault</Link>
-              <Link href="/signup" className="btn-gold" style={{ fontSize: 11 }}>List a Bird</Link>
+              <Link href="/dashboard/settings" className="btn-ghost" style={{ fontSize: 11 }}>Edit Profile</Link>
+              <Link href="/birds/new" className="btn-gold" style={{ fontSize: 11 }}>List a Bird</Link>
             </div>
           </div>
         </div>
 
-        {/* QUICK STATS */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", background: "var(--surface)", borderBottom: "0.5px solid var(--border)" }}>
-          {[
-            ["$4,280", "Active Bid Value"],
-            ["2", "Birds Winning"],
-            ["1", "Birds Outbid"],
-            ["$4,280", "Sales This Month"],
-            ["4.9★", "Seller Rating"],
-          ].map(([val, label]) => (
-            <div key={String(label)} style={{ padding: "28px 32px", borderRight: "0.5px solid var(--border)" }}>
-              <div style={{ fontFamily: "var(--ff-display)", fontSize: 32, fontWeight: 300, color: "var(--gold)", lineHeight: 1, marginBottom: 6 }}>{val}</div>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)" }}>{label}</div>
+        {/* MAIN CONTENT */}
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "48px 64px" }}>
+
+          {/* PROFILE INFO */}
+          <div style={{ background: "var(--void)", border: "0.5px solid var(--border)", borderRadius: 4, padding: 32, marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 20 }}>
+              <div>
+                <div style={{ fontFamily: "var(--ff-display)", fontSize: 28, fontWeight: 300, color: "var(--white)", marginBottom: 8 }}>
+                  {profile.full_name || username}
+                </div>
+                <div style={{ fontSize: 14, color: "var(--muted)", marginBottom: 12 }}>@{username}</div>
+                <div style={{ fontSize: 14, color: "var(--white)", lineHeight: 1.6, maxWidth: 600 }}>
+                  {bio}
+                </div>
+              </div>
+              {profile.is_verified && (
+                <div style={{ background: "var(--gold)", color: "var(--black)", padding: "6px 12px", borderRadius: 2, fontSize: 11, fontWeight: 600 }}>
+                  ✓ VERIFIED
+                </div>
+              )}
             </div>
-          ))}
-        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 0, padding: "48px 64px", alignItems: "start" }}>
-          <div style={{ paddingRight: 48 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginTop: 24, paddingTop: 24, borderTop: "0.5px solid var(--border)" }}>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>Location</div>
+                <div style={{ fontSize: 14, color: "var(--white)" }}>{location}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>Member Since</div>
+                <div style={{ fontSize: 14, color: "var(--white)" }}>
+                  {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>Plan</div>
+                <div style={{ fontSize: 14, color: "var(--gold)" }}>{tier.charAt(0).toUpperCase() + tier.slice(1)}</div>
+              </div>
+            </div>
+          </div>
 
-            {/* ACTIVE BIDS */}
-            <section style={{ marginBottom: 48 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <div style={{ fontFamily: "var(--ff-display)", fontSize: 24, fontWeight: 300, color: "var(--white)" }}>Active Bids</div>
-                <Link href="/browse" style={{ fontSize: 12, color: "var(--gold)", textDecoration: "none" }}>Browse more →</Link>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)" }}>
-                {activeBids.map((b) => (
-                  <div key={b.id} style={{ background: "var(--surface)", display: "flex", gap: 20, alignItems: "center", padding: 20 }}>
-                    <div style={{ position: "relative", width: 64, height: 64, borderRadius: 2, overflow: "hidden", flexShrink: 0, background: "#000" }}>
-                      <Image src={b.img} alt={b.name} fill style={{ objectFit: "contain" }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, color: "var(--white)", marginBottom: 3 }}>{b.name}</div>
-                      <div style={{ fontSize: 12, color: "var(--muted)" }}>{b.loft}</div>
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 10, color: "var(--muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Your Bid</div>
-                      <div style={{ fontFamily: "var(--ff-display)", fontSize: 20, color: "var(--white)" }}>{b.yourBid}</div>
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 10, color: "var(--muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Current</div>
-                      <div style={{ fontFamily: "var(--ff-display)", fontSize: 20, color: "var(--gold)" }}>{b.currentBid}</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 10px", borderRadius: 2, background: b.status === "winning" ? "rgba(50,200,100,0.12)" : "rgba(231,76,60,0.12)", color: b.status === "winning" ? "#50c878" : "#e74c3c", marginBottom: 8 }}>{b.status === "winning" ? "● Winning" : "Outbid"}</div>
-                      <div style={{ fontSize: 11, color: "var(--muted)", textAlign: "center" }}>{b.ends}</div>
-                    </div>
-                    <Link href={`/birds/${b.id}`} style={{ padding: "10px 16px", border: "0.5px solid var(--border-gold)", color: "var(--gold)", fontSize: 11, textDecoration: "none", borderRadius: 1, whiteSpace: "nowrap" }}>
-                      {b.status === "outbid" ? "Raise Bid" : "View"}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </section>
+          {/* EMPTY STATES */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
 
             {/* MY LISTINGS */}
-            <section style={{ marginBottom: 48 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <div style={{ fontFamily: "var(--ff-display)", fontSize: 24, fontWeight: 300, color: "var(--white)" }}>My Listings</div>
-                <Link href="/signup" className="btn-gold" style={{ fontSize: 11, padding: "8px 18px" }}>+ List New Bird</Link>
+            <div style={{ background: "var(--void)", border: "0.5px solid var(--border)", borderRadius: 4, padding: 32 }}>
+              <div style={{ fontSize: 18, fontFamily: "var(--ff-display)", fontWeight: 300, color: "var(--white)", marginBottom: 16 }}>
+                My Listings
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "0.5px solid var(--border)" }}>
-                    {["Bird", "Ring", "Bids", "Current Bid", "Status", ""].map((h) => (
-                      <th key={h} style={{ padding: "8px 12px", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", textAlign: "left" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {myListings.map((b) => (
-                    <tr key={b.id} style={{ borderBottom: "0.5px solid var(--border)" }}>
-                      <td style={{ padding: "16px 12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <div style={{ position: "relative", width: 44, height: 44, background: "#000", borderRadius: 1, overflow: "hidden", flexShrink: 0 }}>
-                            <Image src={b.img} alt={b.name} fill style={{ objectFit: "contain" }} />
-                          </div>
-                          <span style={{ fontSize: 13, color: "var(--white)" }}>{b.name}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "16px 12px", fontSize: 12, color: "var(--gold)" }}>{b.ring}</td>
-                      <td style={{ padding: "16px 12px", fontSize: 13, color: "var(--muted)" }}>{b.bids}</td>
-                      <td style={{ padding: "16px 12px", fontFamily: "var(--ff-display)", fontSize: 18, color: "var(--white)" }}>{b.currentBid}</td>
-                      <td style={{ padding: "16px 12px" }}>
-                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 10px", borderRadius: 2, background: b.status === "live" ? "rgba(255,50,50,0.12)" : "rgba(255,255,255,0.06)", color: b.status === "live" ? "#ff6666" : "var(--muted)" }}>
-                          {b.status === "live" ? "● Live" : "Available"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "16px 12px" }}>
-                        <Link href={`/birds/${b.id}`} style={{ fontSize: 11, color: "var(--gold)", textDecoration: "none" }}>Manage →</Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>🐦</div>
+                <div style={{ fontSize: 14, marginBottom: 16 }}>No birds listed yet</div>
+                <Link href="/birds/new" className="btn-gold" style={{ fontSize: 13 }}>List Your First Bird</Link>
+              </div>
+            </div>
 
-            {/* RECENT SALES */}
-            <section>
-              <div style={{ fontFamily: "var(--ff-display)", fontSize: 24, fontWeight: 300, color: "var(--white)", marginBottom: 20 }}>Recent Sales</div>
-              <div style={{ border: "0.5px solid var(--border)" }}>
-                {recentSales.map((s, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: i < recentSales.length - 1 ? "0.5px solid var(--border)" : "none" }}>
-                    <div>
-                      <div style={{ fontSize: 14, color: "var(--white)", marginBottom: 3 }}>{s.name}</div>
-                      <div style={{ fontSize: 12, color: "var(--muted)" }}>Buyer: {s.buyer} · {s.date}</div>
-                    </div>
-                    <div style={{ fontFamily: "var(--ff-display)", fontSize: 22, color: "var(--gold)" }}>{s.amount}</div>
-                  </div>
-                ))}
+            {/* ACTIVE BIDS */}
+            <div style={{ background: "var(--void)", border: "0.5px solid var(--border)", borderRadius: 4, padding: 32 }}>
+              <div style={{ fontSize: 18, fontFamily: "var(--ff-display)", fontWeight: 300, color: "var(--white)", marginBottom: 16 }}>
+                Active Bids
               </div>
-            </section>
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>💰</div>
+                <div style={{ fontSize: 14, marginBottom: 16 }}>No active bids</div>
+                <Link href="/auctions" className="btn-ghost" style={{ fontSize: 13 }}>Browse Auctions</Link>
+              </div>
+            </div>
+
           </div>
 
-          {/* SIDEBAR */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-            <div style={{ background: "var(--void)", border: "0.5px solid var(--border-gold)", padding: 24, borderRadius: 2 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 16 }}>◆ Elite Loft</div>
-              <div style={{ fontFamily: "var(--ff-display)", fontSize: 20, fontWeight: 300, color: "var(--white)", marginBottom: 8 }}>Your Plan</div>
-              <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 20 }}>Unlimited listings, verified pedigree, featured placement, AI matchmaking, and priority auction placement.</p>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Renews</div>
-              <div style={{ fontSize: 14, color: "var(--white)", marginBottom: 16 }}>June 1, 2025</div>
-              <a href="mailto:strangemotelmusic@gmail.com" style={{ display: "block", textAlign: "center", padding: 10, border: "0.5px solid var(--border)", color: "var(--muted)", fontSize: 11, textDecoration: "none", borderRadius: 1, letterSpacing: "0.08em", textTransform: "uppercase" }}>Manage Subscription</a>
+          {/* RECENT SALES */}
+          <div style={{ background: "var(--void)", border: "0.5px solid var(--border)", borderRadius: 4, padding: 32, marginTop: 24 }}>
+            <div style={{ fontSize: 18, fontFamily: "var(--ff-display)", fontWeight: 300, color: "var(--white)", marginBottom: 16 }}>
+              Sales History
             </div>
-
-            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", padding: 24, borderRadius: 2 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 16 }}>Quick Actions</div>
-              {[
-                { label: "Register a Bird", href: "/signup" },
-                { label: "Add to Pedigree Vault", href: "/pedigree" },
-                { label: "View Leaderboards", href: "/leaderboards" },
-                { label: "Contact Support", href: "mailto:strangemotelmusic@gmail.com" },
-              ].map(({ label, href }) => (
-                <Link key={label} href={href} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "0.5px solid var(--border)", fontSize: 13, color: "var(--muted)", textDecoration: "none" }}>
-                  {label} <span style={{ color: "var(--gold)" }}>→</span>
-                </Link>
-              ))}
-            </div>
-
-            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", padding: 24, borderRadius: 2 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 16 }}>Notifications</div>
-              {[
-                { text: "You have the leading bid on Blue Bar Champion Cock", time: "4m ago", type: "win" },
-                { text: "You were outbid on White Badge Roller Hen", time: "12m ago", type: "loss" },
-                { text: "Anderson's Thunder pedigree was verified", time: "2h ago", type: "info" },
-              ].map((n, i) => (
-                <div key={i} style={{ padding: "12px 0", borderBottom: i < 2 ? "0.5px solid var(--border)" : "none" }}>
-                  <div style={{ fontSize: 12, color: n.type === "win" ? "#50c878" : n.type === "loss" ? "#e74c3c" : "var(--white)", marginBottom: 4, lineHeight: 1.5 }}>{n.text}</div>
-                  <div style={{ fontSize: 10, color: "var(--muted)" }}>{n.time}</div>
-                </div>
-              ))}
+            <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
+              <div style={{ fontSize: 14 }}>No sales yet</div>
             </div>
           </div>
+
         </div>
       </div>
       <Footer />
