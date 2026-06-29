@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Countdown from "@/components/Countdown";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 const chatMessages = [
   { user: "MartinezLoft_CA", msg: "Beautiful bird! What's the bloodline?", time: "2m" },
@@ -28,6 +28,7 @@ const bidHistory = [
 ];
 
 export default function AuctionRoom({ id }: { id: string }) {
+  const supabase = createClient();
   const [currentBid, setCurrentBid] = useState(1240);
   const [bidInput, setBidInput] = useState(1275);
   const [showConfirm, setShowConfirm] = useState(false);

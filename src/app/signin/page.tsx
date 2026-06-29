@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const supabase = createClient();
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,10 +17,26 @@ export default function SignInPage() {
   async function handleSignIn() {
     setLoading(true);
     setError("");
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+
+    const { data, error: err } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
     setLoading(false);
-    if (err) { setError(err.message); return; }
-    router.push("/dashboard");
+
+    if (err) {
+      setError(err.message);
+      return;
+    }
+
+    // Check if email is verified
+    if (data.user && !data.user.email_confirmed_at) {
+      setError("Please verify your email before signing in.");
+      return;
+    }
+
+    router.push(redirectTo);
   }
 
   const inputStyle = { width: "100%", background: "var(--deep)", border: "0.5px solid var(--border)", color: "var(--white)", padding: "12px 16px", fontSize: 14, borderRadius: 2, outline: "none", fontFamily: "var(--ff-body)" };

@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { createClient } from "@/lib/supabase/client";
 
 const activeBids = [
   { id: 1, name: "Blue Bar Champion Cock", loft: "Anderson Elite Loft", yourBid: "$1,240", currentBid: "$1,240", status: "winning", ends: "2h 18m", img: "/bird-white-red.jpg" },
@@ -23,15 +24,21 @@ const recentSales = [
 ];
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ?? null);
-      setLoading(false);
-    });
-  }, []);
+    if (user) {
+      // Fetch user profile from database
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => setProfile(data));
+    }
+  }, [user, supabase]);
 
   if (loading) {
     return (
@@ -50,6 +57,12 @@ export default function DashboardPage() {
     );
   }
 
+  // Use profile data instead of hardcoded values
+  const displayName = profile?.full_name?.split(' ')[0] || user.user_metadata?.username || 'User';
+  const loftName = profile?.loft_name || 'Your Loft';
+  const loftLocation = profile?.loft_location || '';
+  const tier = profile?.tier || 'Fancier';
+
   return (
     <>
       <Nav active="/dashboard" />
@@ -60,8 +73,10 @@ export default function DashboardPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Your Loft</p>
-              <h1 style={{ fontFamily: "var(--ff-display)", fontSize: 40, fontWeight: 300, color: "var(--white)", marginBottom: 6 }}>Welcome back, James</h1>
-              <p style={{ fontSize: 13, color: "var(--muted)" }}>Anderson Elite Loft · DeSoto, TX · Elite Loft Member</p>
+              <h1 style={{ fontFamily: "var(--ff-display)", fontSize: 40, fontWeight: 300, color: "var(--white)", marginBottom: 6 }}>Welcome back, {displayName}</h1>
+              <p style={{ fontSize: 13, color: "var(--muted)" }}>
+                {loftName} {loftLocation && `· ${loftLocation}`} · {tier.charAt(0).toUpperCase() + tier.slice(1)} Member
+              </p>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <Link href="/pedigree" className="btn-ghost" style={{ fontSize: 11 }}>Pedigree Vault</Link>

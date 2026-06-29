@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 const tiers = [
   { id: "fancier", name: "Fancier", price: 19, desc: "Browse, bid, and buy with full buyer protection" },
@@ -12,6 +12,7 @@ const tiers = [
 
 export default function SignupPage() {
   const router = useRouter();
+  const supabase = createClient();
   const [step, setStep] = useState(1);
   const [tier, setTier] = useState("breeder");
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", username: "", password: "", country: "United States" });
@@ -24,18 +25,29 @@ export default function SignupPage() {
   async function handleSignup() {
     setLoading(true);
     setError("");
-    const { error: err } = await supabase.auth.signUp({
+    const { data, error: err } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { data: { username: form.username, full_name: `${form.firstName} ${form.lastName}`, tier } },
+      options: {
+        data: { username: form.username, full_name: `${form.firstName} ${form.lastName}`, tier },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     setLoading(false);
     if (err) { setError(err.message); return; }
-    setStep(3);
+
+    // Check if email confirmation is required
+    if (data.user && !data.session) {
+      // Email confirmation required
+      setStep(3); // Show "Check your email" step
+    } else {
+      // Auto-confirmed (shouldn't happen in production)
+      setStep(4); // Skip to loft setup
+    }
   }
 
   async function handleLoftSetup() {
-    setStep(4);
+    router.push('/dashboard');
   }
 
   return (
@@ -73,7 +85,7 @@ export default function SignupPage() {
       <div style={{ flex: 1, padding: "64px 80px", overflowY: "auto" }}>
         {/* Step bar */}
         <div style={{ display: "flex", gap: 0, marginBottom: 48, alignItems: "center" }}>
-          {["Choose plan", "Your details", "Loft setup", "Done"].map((label, i) => (
+          {["Choose plan", "Your details", "Check email", "Done"].map((label, i) => (
             <div key={label} style={{ display: "flex", alignItems: "center" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, background: step > i + 1 ? "var(--gold)" : step === i + 1 ? "var(--gold)" : "var(--surface)", color: step >= i + 1 ? "var(--black)" : "var(--muted)", border: step <= i + 1 ? "0.5px solid var(--border)" : "none" }}>{step > i + 1 ? "✓" : i + 1}</div>
@@ -142,8 +154,30 @@ export default function SignupPage() {
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3 - Email Verification */}
         {step === 3 && (
+          <div style={{ textAlign: "center", paddingTop: 60 }}>
+            <div style={{ fontSize: 48, marginBottom: 24 }}>✉️</div>
+            <div style={{ fontFamily: "var(--ff-display)", fontSize: 32, fontWeight: 300, color: "var(--white)", marginBottom: 16 }}>
+              Check your email
+            </div>
+            <p style={{ fontSize: 14, color: "var(--muted)", maxWidth: 400, margin: "0 auto 32px" }}>
+              We sent a confirmation link to <strong style={{ color: "var(--gold)" }}>{form.email}</strong>
+            </p>
+            <p style={{ fontSize: 13, color: "var(--muted)", maxWidth: 450, margin: "0 auto 40px", lineHeight: 1.7 }}>
+              Click the link in that email to verify your account. Once confirmed, you'll be able to complete your loft setup and start bidding.
+            </p>
+            <div style={{ fontSize: 12, color: "var(--subtle)" }}>
+              Didn't receive it? Check your spam folder or{" "}
+              <a href="mailto:strangemotelmusic@gmail.com" style={{ color: "var(--gold)", textDecoration: "none" }}>
+                contact support
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4 - Loft Setup (legacy, kept for fallback) */}
+        {step === 4 && (
           <div>
             <div style={{ fontSize: 28, fontFamily: "var(--ff-display)", fontWeight: 300, color: "var(--white)", marginBottom: 8 }}>Set up your loft</div>
             <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 32 }}>Your public loft profile — fanciers worldwide will see this</div>
@@ -156,14 +190,14 @@ export default function SignupPage() {
               <textarea value={loft.description} onChange={(e) => setLoft((p) => ({ ...p, description: e.target.value }))} placeholder="Tell the community about your loft, your bloodlines, and what you specialize in…" style={{ width: "100%", background: "var(--deep)", border: "0.5px solid var(--border)", color: "var(--white)", padding: "12px 16px", fontSize: 14, borderRadius: 2, outline: "none", minHeight: 100, resize: "vertical", fontFamily: "var(--ff-body)" }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <button className="btn-ghost" onClick={() => setStep(4)} style={{ fontSize: 12, color: "var(--muted)" }}>Skip for now →</button>
+              <button className="btn-ghost" onClick={() => setStep(5)} style={{ fontSize: 12, color: "var(--muted)" }}>Skip for now →</button>
               <button className="btn-gold-lg" onClick={handleLoftSetup}>Finish setup →</button>
             </div>
           </div>
         )}
 
-        {/* STEP 4 */}
-        {step === 4 && (
+        {/* STEP 5 - Done */}
+        {step === 5 && (
           <div style={{ textAlign: "center", paddingTop: 40 }}>
             <div style={{ fontSize: 64, marginBottom: 24 }}>◆</div>
             <div style={{ fontFamily: "var(--ff-display)", fontSize: 42, fontWeight: 300, color: "var(--white)", marginBottom: 16 }}>You&apos;re in.</div>
